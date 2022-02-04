@@ -6,7 +6,7 @@ import { UserContext } from '../context/userContext';
 import { auth, db } from '../firebase';
 
 function Navbar() {
-    const { user, setUser } = useContext(UserContext);
+    const { user } = useContext(UserContext);
     const navigate = useNavigate();
     const signOutUser = async (e) => {
         e.preventDefault();
@@ -14,7 +14,7 @@ function Navbar() {
             isOnline: false
         } )
         await signOut(auth);
-        navigate('/login');
+        navigate('/login', {replace: true});
     }
     return (
         <nav>
@@ -25,9 +25,10 @@ function Navbar() {
                 {
                     user 
                     ?
-                        <form onSubmit={signOutUser}>
-                            <button className='btn' type='submit'>Logout</button>
-                        </form>
+                        <>
+                            <Link to="/profile"> Profile </Link>
+                            <button onClick={signOutUser} className='btn'>Logout</button>
+                        </>
                     : 
                     <>
                         <Link to="/register">Register</Link>

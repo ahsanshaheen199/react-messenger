@@ -38,14 +38,7 @@ const Register = () => {
                 isOnline: false,
                 createdAt: Timestamp.fromDate( new Date() )
             } );
-            setFormData({
-                name: '',
-                email: '',
-                password: '',
-                loading: false,
-                error: ''
-            })
-            navigate('/login');
+            navigate('/login', {replace: true});
         } catch ( error ) {
             setFormData({...formData, error: error.message, loading: false})
         }
