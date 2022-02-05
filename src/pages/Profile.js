@@ -2,6 +2,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore/lite';
 import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import React, { useContext, useEffect, useState } from 'react';
 import Camera from '../components/svg/Camera';
+import Delete from '../components/svg/Delete';
 import { UserContext } from '../context/userContext';
 import { db, storage } from '../firebase';
 
@@ -9,6 +10,23 @@ const Profile = () => {
     const { user } = useContext(UserContext);
     const [img, setImg] = useState("");
     const [currentUser, setCurrentUser] = useState(null);
+    const deleteImage = async () => {
+        try {
+            const confirm = window.confirm("Delete avatar?");
+            if (confirm) {
+                await deleteObject(ref(storage, currentUser.avatarPath));
+        
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    avatar: "",
+                    avatarPath: "",
+                });
+
+                setCurrentUser({...currentUser,avatar: "", avatarPath: ""})
+            }
+        } catch (err) {
+            console.log(err.message);
+        }
+    }
     useEffect( () => {
         const userDoc = async () => {
             const docSnap = await getDoc( doc( db, 'users', user.uid ) );
@@ -39,11 +57,16 @@ const Profile = () => {
                         avatar: url,
                         avatarPath: snap.ref.fullPath
                     })
+
+                    setCurrentUser( { ...currentUser, avatar: url,
+                        avatarPath: snap.ref.fullPath } )
+
+                    setImg('')
                     
                 } catch( error ) {
                     console.log(error);
                 }
-                setImg('')
+                
             }
             uploadImage();
         }
@@ -60,6 +83,9 @@ const Profile = () => {
                             <label htmlFor="photo">
                                 <Camera />
                             </label>
+                            {
+                                currentUser.avatar ? <Delete deleteImage={deleteImage} /> : null
+                            }
                             <input
                                 type="file"
                                 accept="image/*"
